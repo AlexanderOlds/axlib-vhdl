@@ -34,6 +34,41 @@ architecture rtl of uart_tx is
 
 begin
 
+  enablepulses : process (clk, aresetn) is
+
+    variable baudcount : integer range 0 to ((clk_freq / baudrate) - 1);
+    variable oscount   : integer range 0 to ((clk_freq / baudrate / osrate) - 1);
+
+  begin
+
+    if (aresetn = '0') then
+      baudpulse <= '0';
+      ospulse   <= '0';
+      baudcount := 0;
+      oscount   := 0;
+    elsif rising_edge(clk) then
+      -- baud enable pulse
+      if (baudcount < ((clk_freq / baudrate) - 1)) then
+        baudcount := baudcount + 1;
+        baudpulse <= '0';
+      else
+        baudcount := 0;
+        baudpulse <= '1';
+        oscount   := 0; -- reset avoids carry error from freq mismatch
+      end if;
+
+      -- oversample enable pulse
+      if (oscount < ((clk_freq / baudrate / osrate) - 1)) then
+        oscount := oscount + 1;
+        ospulse <= '0';
+      else
+        oscount := 0;
+        ospulse <= '1';
+      end if;
+    end if;
+
+  end process enablepulses;
+
   transmitfsm : process (clk, aresetn) is
 
     variable txcount : integer range 0 to (parity + dwidth + 3);
