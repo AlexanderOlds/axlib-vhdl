@@ -127,7 +127,7 @@ begin
             rxbuffer <= (rx & rxbuffer((parity + dwidth) downto 1));   -- left shift bit into buffer
             rxstate  <= receive;
           else                                                         -- stop bit
-            rxdata  <= rxbuffer (dwidth downto 0);
+            rxdata  <= rxbuffer (dwidth downto 1);
             rxerror <= (rxbuffer(0) or parityerror or not rx);
             rxbusy  <= '0';
             rxstate <= idle;
