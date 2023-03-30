@@ -176,9 +176,9 @@ begin
         when idle =>
 
           if (txenable = '1') then
-            txbuffer((dwidth + 1) downto 0) <= (txdata & '0' & '1');  -- latch in data, start, and stop
+            txbuffer((dwidth + 1) downto 0) <= (txdata & '0' & '1');      -- latch in data, start, and stop
             if (parity = 1) then
-              txbuffer(parity + dwidth + 1) <= txparity(dwidth);      -- latch in parity bit;
+              txbuffer(parity + dwidth + 1) <= txparity(dwidth);          -- latch in parity bit;
             end if;
             txbusy  <= '1';
             txcount := 0;
@@ -192,11 +192,11 @@ begin
 
           if (baudpulse = '1') then
             txcount  := txcount + 1;
-            txbuffer <= ('1' & txbuffer((parity + dwidth) downto 1)); -- shift buffer to next bit
+            txbuffer <= ('1' & txbuffer((parity + dwidth + 1) downto 1)); -- shift buffer to next bit
           end if;
           if (txcount < (parity + dwidth + 3)) then
             txstate <= transmit;
-          else                                                        -- all bits transmitted
+          else                                                            -- all bits transmitted
             txstate <= idle;
           end if;
 
@@ -206,7 +206,7 @@ begin
 
       end case;
 
-      tx <= txbuffer(0);                                              -- drive output
+      tx <= txbuffer(0);                                                  -- drive output
     end if;
 
   end process transmitfsm;
